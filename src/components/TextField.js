@@ -9,7 +9,6 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.xs,
     paddingTop: spacing.m,
     marginBottom: spacing.s,
-    
   },
   input: {
     paddingHorizontal: spacing.xs,
@@ -22,7 +21,15 @@ const styles = StyleSheet.create({
   },
 });
 
-export function TextField({ onBlur, onFocus, placeholder, value,styleContainer, ...rest }) {
+export function TextField({
+  onBlur,
+  onFocus,
+  placeholder,
+  value,
+  styleContainer,
+  changeValue,
+  ...rest
+}) {
   const animation = useSharedValue(0);
   const [labelWidth, setLabelWidth] = useState(0);
 
@@ -56,7 +63,7 @@ export function TextField({ onBlur, onFocus, placeholder, value,styleContainer, 
   }));
 
   return (
-    <View style={[styles.container,{...styleContainer}]}>
+    <View style={[styles.container, { ...styleContainer }]}>
       <Animated.Text onLayout={measureLabelWidth} style={[styles.label, animatedStyle]}>
         {placeholder}
       </Animated.Text>
@@ -65,6 +72,7 @@ export function TextField({ onBlur, onFocus, placeholder, value,styleContainer, 
         onFocus={handleFocus}
         style={styles.input}
         value={value}
+        onChangeText={changeValue} // Thay đổi từ onChange thành onChangeText
         {...rest}
       />
     </View>

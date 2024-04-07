@@ -7,8 +7,8 @@ export const en = {
     header: 'Home',
     message: 'Welcome',
     variant: 'App variant: ',
-    addFriend:"Add Friend",
-    createGroup:"Create Group"
+    addFriend: 'Add Friend',
+    createGroup: 'Create Group',
   },
   login: {
     username: 'Username',
@@ -61,5 +61,31 @@ export const en = {
     reload: 'Resend',
     resend: 'The code has been sent to your email, please check your email ',
     success: 'Verification Success',
+  },
+  searchFriend: {
+    title: 'Search Friend',
+    button: 'Search',
+    back: 'Back',
+    success: 'Verification Success',
+    error: 'Error',
+    emptyResult: 'Empty Result',
+  },
+
+  getFriends: {
+    title: 'Search Friend',
+    button: 'Search',
+    back: 'Back',
+    success: 'Verification Success',
+    error: 'Error when get friend',
+    emptyResult: 'Empty Result',
+  },
+
+  messenger: {
+    title: 'Messenger',
+    button: 'Send',
+    back: 'Back',
+    success: 'Verification Success',
+    error: 'Error when get friend',
+    emptyResult: 'Empty Result',
   },
 };

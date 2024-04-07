@@ -11,6 +11,19 @@ export const routes = {
 
     gencode: `${url}/auth/generate-verification-code/`,
   },
+
+  friend: {
+    getFriend: `${url}/friend/get-friend/`,
+    addFriend: `${url}/friend/add-friend/`,
+    removeFriend: `${url}/friend/remove-friend/`,
+    searchByEmail: `${url}/user/friend/find/`,
+    getAllFriend: `${url}/user/friend`,
+  },
+  message: {
+    getAllMessenger: `${url}/message`,
+    // sendMessage: `${url}/message/send-message/`,
+  },
+
   // register: {
   //   register: '/users/register',
   // },

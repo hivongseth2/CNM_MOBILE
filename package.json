@@ -26,7 +26,7 @@
     "lint": "eslint ."
   },
   "dependencies": {
-    "@react-native-async-storage/async-storage": "^1.17.10",
+    "@react-native-async-storage/async-storage": "^1.23.1",
     "@react-native-community/cli-platform-android": "^9.1.0",
     "@react-native-community/cli-platform-ios": "^9.1.2",
     "@react-navigation/bottom-tabs": "^6.4.0",

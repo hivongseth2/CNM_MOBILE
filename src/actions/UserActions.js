@@ -1,5 +1,6 @@
 import { UserController } from '@/controllers';
 import { strings } from '@/localization';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const TYPES = {
   CLEAR_STORE: 'CLEAR_STORE',
@@ -53,9 +54,13 @@ export const login =
       dispatch(loginRequest());
       const userController = new UserController(networkService);
       const { data } = await userController.login({ email, password });
-
       networkService.setAccessToken(data.token);
 
+      try {
+        await AsyncStorage.setItem('token', data.token);
+      } catch (error) {
+        console.log('loiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii');
+      }
       dispatch(loginSuccess(data.user));
       return data;
     } catch ({ data }) {

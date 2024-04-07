@@ -6,7 +6,8 @@ import styles from './UserChatStyle';
 import formatTimeDifference from '@/utils/time';
 import { NAVIGATION } from '@/constants';
 
-export default function UserChat({ id, name, srcAvatar, chatContent }) {
+export default function UserChat({ id, name, srcAvatar, chatContent, time }) {
+  console.log(id, name, srcAvatar, chatContent);
   const navigation = useNavigation();
   const { colors } = useTheme();
   return (
@@ -23,7 +24,9 @@ export default function UserChat({ id, name, srcAvatar, chatContent }) {
         <Image
           style={styles.avatar}
           source={{
-            uri: srcAvatar,
+            uri: srcAvatar
+              ? srcAvatar
+              : 'https://i0.wp.com/sbcf.fr/wp-content/uploads/2018/03/sbcf-default-avatar.png?ssl=1',
           }}
         />
         <View style={styles.containerText}>
@@ -32,11 +35,13 @@ export default function UserChat({ id, name, srcAvatar, chatContent }) {
             style={[typography.text, { color: 'gray', maxWidth: 220, width: 220 }]}
             numberOfLines={1}
           >
-            {chatContent[0].sender}: {chatContent[chatContent.length - 1].message}
+            {/* {chatContent[0].sender}: {chatContent[chatContent.length - 1].message} */}
+            {chatContent}
           </Text>
         </View>
         <Text style={[typography.time, { color: 'lightGray' }]} numberOfLines={1}>
-          {formatTimeDifference(chatContent[0].timestamp)}
+          {formatTimeDifference(time)}
+          {/* {time} */}
         </Text>
       </View>
 

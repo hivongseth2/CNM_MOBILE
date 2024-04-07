@@ -12,10 +12,18 @@ export default function UserV({ name, srcAvatar }) {
       <Image
         style={styles.avatar}
         source={{
-          uri: srcAvatar,
+          uri: srcAvatar
+            ? srcAvatar
+            : 'https://i0.wp.com/sbcf.fr/wp-content/uploads/2018/03/sbcf-default-avatar.png?ssl=1',
         }}
       />
-      <Text style={[typography.text, { color: colors.text }]}>{name}</Text>
+      <Text
+        numberOfLines={1}
+        ellipsizeMode="tail"
+        style={[typography.text, { color: colors.text, overflow: 'hidden', width: 100 }]}
+      >
+        {name}
+      </Text>
     </View>
   );
 }
