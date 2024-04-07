@@ -35,9 +35,7 @@ export const getAllMessenger =
   () =>
   async (dispatch, _, { networkService }) => {
     try {
-      console.log('res data response0');
       dispatch(messengesRequest());
-      console.log('res data response1');
       const messengerController = new MessengerController(networkService);
       await messengerController.getAllMessenger().then((res) => {
         if (res.status === 200) {
@@ -47,7 +45,6 @@ export const getAllMessenger =
 
       return data;
     } catch ({ data }) {
-      console.log('loi gi day', data);
       dispatch(messengesError(data ?? strings.messenger.error));
       return data;
     }

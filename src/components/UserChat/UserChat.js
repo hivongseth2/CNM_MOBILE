@@ -6,8 +6,7 @@ import styles from './UserChatStyle';
 import formatTimeDifference from '@/utils/time';
 import { NAVIGATION } from '@/constants';
 
-export default function UserChat({ id, name, srcAvatar, chatContent, time }) {
-  console.log(id, name, srcAvatar, chatContent);
+export default function UserChat({ id, name, srcAvatar, chatContent, time, content }) {
   const navigation = useNavigation();
   const { colors } = useTheme();
   return (
@@ -16,7 +15,7 @@ export default function UserChat({ id, name, srcAvatar, chatContent, time }) {
       onPress={() => {
         navigation.navigate(NAVIGATION.chat, {
           srcAvatar: srcAvatar,
-          chatContent: chatContent,
+          content: content,
         });
       }}
     >

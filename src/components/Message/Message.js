@@ -8,7 +8,8 @@ export default Message = ({ isOwn, message, srcAvatar }) => {
         source={{
           uri: isOwn
             ? undefined
-            : 'https://kenh14cdn.com/thumb_w/660/2020/5/28/0-1590653959375414280410.jpg',
+            : srcAvatar ||
+              'https://i0.wp.com/sbcf.fr/wp-content/uploads/2018/03/sbcf-default-avatar.png?ssl=1',
         }}
       />
       <View style={isOwn ? styles.ownMessage : styles.messageContentOther}>

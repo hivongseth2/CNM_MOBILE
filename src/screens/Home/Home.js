@@ -31,9 +31,7 @@ export function Home() {
   const dispatch = useDispatch();
   const listFriend = useSelector(getListFriend);
   const listMess = useSelector(getListMessenges);
-  useEffect(() => {
-    console.log('messenger128372137721893712', listMess);
-  }, [listMess]);
+
 
   useEffect(() => {
     dispatch(getAllFriend());
@@ -93,6 +91,7 @@ export function Home() {
             srcAvatar={user.participants[0].avatarUri}
             chatContent={user.lastMessage.content}
             time={user.lastMessage.timestamp}
+            content={user}
           />
         ))}
       </ScrollView>

@@ -6,19 +6,31 @@ import Message from '@/components/Message/Message';
 import { useRoute, useTheme } from '@react-navigation/native';
 import { TextField } from '@/components';
 import TextInputComponent from '@/components/TextInput/TextInputComponent';
+import { getUser } from '@/selectors/UserSelectors';
+import { useDispatch, useSelector } from 'react-redux';
 
 export default function Chat() {
   const route = useRoute(); // Sử dụng hook useRoute để truy cập route.params
   const { colors } = useTheme();
   const [search, setSearch] = useState('');
+  const user = useSelector(getUser);
 
-  const [chatContent, setChatContent] = useState(route.params.chatContent);
+  console.log('useeeeeeeeeeeeeeeeee', user);
+  const srcAvatar = route.params.srcAvatar;
+
+  const [chatContent, setChatContent] = useState(route.params.content);
   return (
     <View style={styles.container}>
       <ScrollView>
         <View style={styles.container}>
-          {chatContent.map((message, index) => (
-            <Message key={index} isOwn={message.sender === 'You'} message={message.message} />
+          {chatContent.messages.map((message, index) => (
+            // <Message key={index} isOwn={message.sender === 'You'} message={message.content} />
+            <Message
+              key={index}
+              isOwn={user.userId === message.sender.userId}
+              message={message.content}
+              srcAvatar={srcAvatar}
+            />
           ))}
         </View>
       </ScrollView>
