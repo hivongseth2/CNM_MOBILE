@@ -32,7 +32,6 @@ export function Home() {
   const listFriend = useSelector(getListFriend);
   const listMess = useSelector(getListMessenges);
 
-
   useEffect(() => {
     dispatch(getAllFriend());
     dispatch(getAllMessenger());
@@ -83,17 +82,19 @@ export function Home() {
             <UserV key={user.userId} name={user.fullName} srcAvatar={user.avatarUri} />
           ))}
         </ScrollView>
-        {listMess.map((user) => (
-          <UserChat
-            key={user.id}
-            id={user.id}
-            name={user.participants[0].fullName}
-            srcAvatar={user.participants[0].avatarUri}
-            chatContent={user.lastMessage.content}
-            time={user.lastMessage.timestamp}
-            content={user}
-          />
-        ))}
+        {listMess &&
+          listMess.length > 0 &&
+          listMess?.map((user) => (
+            <UserChat
+              key={user.id}
+              id={user.id}
+              name={user.participants[0].fullName}
+              srcAvatar={user.participants[0].avatarUri}
+              chatContent={user.lastMessage.content}
+              time={user.lastMessage.timestamp}
+              content={user}
+            />
+          ))}
       </ScrollView>
 
       <ModalOption

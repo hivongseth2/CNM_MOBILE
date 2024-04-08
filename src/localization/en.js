@@ -1,3 +1,5 @@
+import { sendMessage } from '@/actions/MessengerAction';
+
 export const en = {
   common: {
     loading: 'Loading',
@@ -86,6 +88,15 @@ export const en = {
     back: 'Back',
     success: 'Verification Success',
     error: 'Error when get friend',
+    emptyResult: 'Empty Result',
+  },
+
+  sendMessage: {
+    title: 'Send Message',
+    button: 'Send',
+    back: 'Back',
+    success: 'Verification Success',
+    error: 'Error when  send mesage',
     emptyResult: 'Empty Result',
   },
 };

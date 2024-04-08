@@ -8,6 +8,10 @@ export const TYPES = {
   MESSENGES_REQUEST: 'MESSENGES_REQUEST',
   MESSENGES_ERROR: 'MESSENGES_ERROR',
   MESSENGES_SUCCESS: 'MESSENGES_SUCCESS',
+
+  SEND_MESSAGE_REQUEST: 'SEND_MESSAGE_REQUEST',
+  SEND_MESSAGE_ERROR: 'SEND_MESSAGE_ERROR',
+  SEND_MESSAGE_SUCCESS: 'SEND_MESSAGE_SUCCESS',
 };
 
 const messengesRequest = () => ({
@@ -25,6 +29,21 @@ const messengesError = (error) => ({
   payload: { error },
 });
 
+const sendMessageRequest = () => ({
+  type: TYPES.SEND_MESSAGE_REQUEST,
+  payload: null,
+});
+
+const sendMessageSuccess = (message) => ({
+  type: TYPES.SEND_MESSAGE_SUCCESS,
+  payload: { message },
+});
+
+const sendMessageError = (error) => ({
+  type: TYPES.SEND_MESSAGE_ERROR,
+  payload: { error },
+});
+
 const clear = () => ({
   type: TYPES.CLEAR_STORE,
 });
@@ -37,7 +56,7 @@ export const getAllMessenger =
     try {
       dispatch(messengesRequest());
       const messengerController = new MessengerController(networkService);
-      await messengerController.getAllMessenger().then((res) => {
+      const data = await messengerController.getAllMessenger().then((res) => {
         if (res.status === 200) {
           dispatch(messengesSuccess(res.data));
         }
@@ -46,6 +65,23 @@ export const getAllMessenger =
       return data;
     } catch ({ data }) {
       dispatch(messengesError(data ?? strings.messenger.error));
+      return data;
+    }
+  };
+
+export const sendMessageAction =
+  ({ receiverId, content }) =>
+  async (dispatch, _, { networkService }) => {
+    try {
+      dispatch(sendMessageRequest());
+      const messengerController = new MessengerController(networkService);
+      await messengerController.sendMessage({ receiverId, content }).then((res) => {
+        if (res.status === 200) {
+          dispatch(sendMessageSuccess(res.data));
+        }
+      });
+    } catch ({ data }) {
+      dispatch(sendMessageError(data ?? strings.sendMessage.error));
       return data;
     }
   };

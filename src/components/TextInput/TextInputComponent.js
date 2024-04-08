@@ -1,10 +1,9 @@
 /* eslint-disable import/named */
 /* eslint-disable react-native-a11y/has-valid-accessibility-ignores-invert-colors */
-import { StyleSheet, View, TextInput, Image } from 'react-native';
+import { StyleSheet, View, TextInput, Image, Pressable } from 'react-native';
 import React, { useState } from 'react';
 
-export default function TextInputComponent() {
-  const [chatInput, setChatInput] = useState('');
+export default function TextInputComponent({ message, setMessage, sendMessage }) {
   return (
     <View style={styles.searchSection}>
       <TextInput
@@ -12,12 +11,13 @@ export default function TextInputComponent() {
         accessibilityHint="Enter your message here"
         style={styles.input}
         placeholder="Nhắn tin"
-        onChangeText={(input) => {
-          setChatInput(input); // Fixed setting state
-        }}
+        value={message}
+        onChangeText={setMessage}
         underlineColorAndroid="transparent"
       />
-      <Image style={styles.icon} source={require('../../assets/send.png')} />
+      <Pressable onPress={sendMessage}>
+        <Image style={styles.icon} source={require('../../assets/send.png')} />
+      </Pressable>
     </View>
   );
 }
