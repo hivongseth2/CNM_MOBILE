@@ -13,6 +13,7 @@ export default function UserChat({ id, name, srcAvatar, chatContent, time, conte
     <Pressable
       style={styles.container}
       onPress={() => {
+        console.log('content', content);
         navigation.navigate(NAVIGATION.chat, {
           srcAvatar: srcAvatar,
           content: content,

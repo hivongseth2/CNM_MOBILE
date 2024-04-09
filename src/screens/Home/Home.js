@@ -19,7 +19,9 @@ import { getListFriend } from '@/selectors/FriendSelector';
 import { getAllFriend } from '@/actions/ListFriendAction';
 import { getListMessenges } from '@/selectors/MessengesSelector';
 import { getAllMessenger } from '@/actions/MessengerAction';
-
+import SockJS from 'sockjs-client';
+import Stomp from 'stompjs';
+import { over as StompOver } from 'stompjs';
 export function Home() {
   const navigation = useNavigation();
   const { colors } = useTheme();
@@ -28,14 +30,51 @@ export function Home() {
   const [users, setUsername] = useState(usersData);
   const [modalState, setModalState] = useState(false);
   // const user = useSelector(getUser);
+
   const dispatch = useDispatch();
   const listFriend = useSelector(getListFriend);
   const listMess = useSelector(getListMessenges);
+
+  console.log('getListMessenges', listMess.message);
+
+  useEffect(() => {}, [listMess.message]);
 
   useEffect(() => {
     dispatch(getAllFriend());
     dispatch(getAllMessenger());
   }, [dispatch]);
+
+  useEffect(() => {
+    const sock = new SockJS('http://103.71.96.70:8080/ws');
+    const stompClient = StompOver(sock);
+
+    stompClient.connect(
+      {},
+      (frame) => {
+        console.log('Connected: ' + frame);
+        // Đăng ký nhận tin nhắn từ server
+        stompClient.subscribe(`/user/${user.userId}/queue/messages`, (message) => {
+          console.log(message);
+          //   // Xử lý tin nhắn nhận được tại đây
+          //   // Ví dụ: setMessageData(prevData => [...prevData, message.body]);
+
+          dispatch(getAllMessenger());
+        });
+      },
+      (error) => {
+        console.error('STOMP error:', error);
+      }
+    );
+
+    // Dọn dẹp khi component bị unmount
+    return () => {
+      if (stompClient) {
+        stompClient.disconnect(() => {
+          console.log('Disconnected');
+        });
+      }
+    };
+  }, [user.userId]);
 
   const closeModal = () => {
     setModalState(false);

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import Svg, { Path } from 'react-native-svg';
+import Svg, { Path, Circle } from 'react-native-svg';
 export const AddfrIcon = ({ width = 24, height = 24, color }) => (
   <Svg
     className="w-6 h-6 text-gray-800 dark:text-white"
@@ -18,8 +18,8 @@ export const AddfrIcon = ({ width = 24, height = 24, color }) => (
   </Svg>
 );
 
-export const SearchIcon = ({ width = 24, height = 24, color="black" }) => (
-    <Svg
+export const SearchIcon = ({ width = 24, height = 24, color = 'black' }) => (
+  <Svg
     className="w-6 h-6 text-gray-800 dark:text-white"
     aria-hidden="true"
     xmlns="http://www.w3.org/2000/svg"
@@ -33,6 +33,56 @@ export const SearchIcon = ({ width = 24, height = 24, color="black" }) => (
       fillRule="evenodd"
       d="M21.707 21.707a1 1 0 0 1-1.414 0l-3.5-3.5a1 1 0 0 1 1.414-1.414l3.5 3.5a1 1 0 0 1 0 1.414Z"
       clipRule="evenodd"
+    />
+  </Svg>
+);
+
+export const MoreIcon = ({ width = 24, height = 24, color = 'black' }) => (
+  <Svg
+    width={width}
+    height={height}
+    viewBox="0 0 32 32"
+    enableBackground="new 0 0 32 32"
+    id="Editable-line"
+    xmlSpace="preserve"
+    xmlns="http://www.w3.org/2000/svg"
+    xmlnsXlink="http://www.w3.org/1999/xlink"
+  >
+    <Circle
+      cx={16}
+      cy={16}
+      fill={color}
+      id="XMLID_878_"
+      r={2}
+      stroke="#000000"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeMiterlimit={10}
+      strokeWidth={2}
+    />
+    <Circle
+      cx={6}
+      cy={16}
+      fill={color}
+      id="XMLID_879_"
+      r={2}
+      stroke="#000000"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeMiterlimit={10}
+      strokeWidth={2}
+    />
+    <Circle
+      cx={26}
+      cy={16}
+      fill={color}
+      id="XMLID_880_"
+      r={2}
+      stroke="#000000"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeMiterlimit={10}
+      strokeWidth={2}
     />
   </Svg>
 );

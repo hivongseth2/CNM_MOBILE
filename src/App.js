@@ -7,6 +7,7 @@ import { PersistGate } from 'redux-persist/integration/react';
 import { persistor, store } from '@/store';
 import { networkService } from '@/networking';
 import { RootNavigator } from '@/navigation';
+import { ModalPortal } from 'react-native-modals';
 
 const styles = StyleSheet.create({
   container: {
@@ -30,6 +31,7 @@ export function App() {
       <PersistGate onBeforeLift={handleStoreRehydration} persistor={persistor}>
         <GestureHandlerRootView style={styles.container}>
           <RootNavigator />
+          <ModalPortal />
         </GestureHandlerRootView>
       </PersistGate>
     </Provider>

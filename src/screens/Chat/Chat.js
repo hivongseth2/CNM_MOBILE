@@ -1,7 +1,7 @@
-import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Image, ScrollView, StyleSheet, Text, View, Animated, Easing } from 'react-native';
 import { strings } from '@/localization';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import Message from '@/components/Message/Message';
 import { useRoute, useTheme } from '@react-navigation/native';
 import { TextField } from '@/components';
@@ -9,82 +9,169 @@ import TextInputComponent from '@/components/TextInput/TextInputComponent';
 import { getUser } from '@/selectors/UserSelectors';
 import { useDispatch, useSelector } from 'react-redux';
 import { sendMessageAction } from '@/actions/MessengerAction';
-import io from 'socket.io-client';
+import { getListFriend } from '@/selectors/FriendSelector';
+import { getListMessenges } from '@/selectors/MessengesSelector';
+import Pressable from 'react-native/Libraries/Components/Pressable/Pressable';
+import { Modal, ModalContent, SlideAnimation } from 'react-native-modals';
+import { color } from 'react-native-reanimated';
 
 export default function Chat() {
   const route = useRoute(); // Sử dụng hook useRoute để truy cập route.params
   const { colors } = useTheme();
   const [search, setSearch] = useState('');
   const user = useSelector(getUser);
-  const [socket, setSocket] = useState(null);
   const [message, setMessage] = useState('');
   const srcAvatar = route.params.srcAvatar;
-
+  const [sockets, setSockets] = useState({});
+  const [messageData, setMessageData] = useState(route.params.content);
   const dispatch = useDispatch();
+  const listMess = useSelector(getListMessenges);
 
-  const [chatContent, setChatContent] = useState(route.params.content);
+  const [selectedMessageIndex, setSelectedMessageIndex] = useState(null);
+  const [isModalVisible, setModalVisible] = useState(false);
+  const [scaleAnimation] = useState(new Animated.Value(1));
 
   useEffect(() => {
-    // Connect to the server
-    const newSocket = io('http://103.71.96.70:8080/ws', {
-      transports: ['websocket'], // Use WebSocket transport
-      auth: {
-        // Provide login credentials
-        username: user.email,
-        password: '123123', // Password can be hard-coded or fetched dynamically
-      },
-    });
+    // Cập nhật messageData khi listMess thay đổi
+    const foundMessage = listMess.find((message) => message.id === messageData.id);
+    if (foundMessage) {
+      setMessageData(foundMessage);
+    }
+  }, [listMess, messageData.id]);
 
-    newSocket.on('connect', () => {
-      console.log('Connected to the server');
-      // Subscribe to the messages for the user
-      newSocket.on(`/user/${user.userId}/queue/messages`, (message) => {
-        console.log('Message received', message);
-        // Handle the received message
-      });
-    });
-
-    newSocket.on('disconnect', () => {
-      console.log('Disconnected from the server');
-    });
-
-    setSocket(newSocket);
-
-    // Clean up on component unmount
-    return () => newSocket.close();
-  }, []);
+  const handleLongPress = (index) => {
+    setSelectedMessageIndex(index); // Lưu index của item được chọn
+    Animated.timing(scaleAnimation, {
+      toValue: 1.1,
+      duration: 100,
+      easing: Easing.circle,
+      useNativeDriver: true,
+    }).start();
+    setModalVisible(true);
+  };
+  const handleCloseModal = () => {
+    console.log(' vai lion');
+    Animated.timing(scaleAnimation, {
+      toValue: 1,
+      duration: 200,
+      easing: Easing.sin,
+      useNativeDriver: true,
+    }).start();
+    // setModalVisible(false);
+  };
 
   const sendText = () => {
     console.log('loi');
     dispatch(
       sendMessageAction({ receiverId: '721b8305-5b09-466d-80b9-79eb4e98121f', content: message })
     );
+    setMessage('');
   };
-  const sendMessage = () => {
-    if (socket) {
-      socket.emit('sendMessage', {
-        receiverId: '721b8305-5b09-466d-80b9-79eb4e98121f',
-        message,
-      });
+  const sendMessage = (message, userId) => {
+    const socket = sockets[userId];
+    if (socket && socket.readyState === WebSocket.OPEN) {
+      socket.send(JSON.stringify(message));
     }
   };
-
   return (
     <View style={styles.container}>
       <ScrollView>
-        <View style={styles.container}>
-          {chatContent.messages.map((message, index) => (
-            <Message
+        <View style={[styles.container, { flexDirection: 'column-reverse' }]}>
+          {messageData?.messages?.map((message, index) => (
+            <Pressable
               key={index}
-              isOwn={user.userId === message.sender.userId}
-              message={message.content}
-              srcAvatar={srcAvatar}
-            />
+              onLongPress={() => handleLongPress(index)} // Pass index to handleLongPress function
+            >
+              <Animated.View
+                style={[
+                  styles.messageContainer,
+                  selectedMessageIndex === index && { transform: [{ scale: scaleAnimation }] },
+                ]}
+              >
+                <Message
+                  isOwn={user.userId === message.sender.userId}
+                  message={message.content}
+                  srcAvatar={srcAvatar}
+                />
+              </Animated.View>
+            </Pressable>
           ))}
         </View>
       </ScrollView>
 
-      <TextInputComponent message={message} setMessage={setMessage} sendMessage={sendText} />
+      <TextInputComponent />
+
+      <Modal
+        width={240}
+        height={200}
+        modalStyle={{ backgroundColor: 'transparent' }}
+        animationDuration={50}
+        swipeDirection={['up', 'down']} // can be string or an array
+        swipeThreshold={50} // default 100
+        onSwipeOut={(event) => {
+          setModalVisible(false);
+        }}
+        visible={isModalVisible}
+        modalAnimation={
+          new SlideAnimation({
+            slideFrom: 'bottom',
+          })
+        }
+        onDismiss={() => {
+          handleCloseModal();
+        }}
+        onTouchOutside={() => {
+          handleCloseModal();
+          setModalVisible(false);
+        }}
+        onSwipingOut={() => {
+          handleCloseModal();
+        }}
+      >
+        <ModalContent>
+          <View
+            style={{
+              // flex: 1,
+              justifyContent: 'center',
+              alignItems: 'center',
+              height: 200,
+            }}
+          >
+            <Pressable
+              style={{
+                borderRadius: 4,
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: 200,
+                height: 50,
+                backgroundColor: colors.red,
+              }}
+              onPress={() => {
+                console.log('action1');
+              }}
+            >
+              <Text>Delete</Text>
+            </Pressable>
+
+            <Pressable
+              style={{
+                borderRadius: 4,
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: 200,
+                height: 50,
+                backgroundColor: colors.blue,
+                marginTop: 20,
+              }}
+              onPress={() => {
+                console.log('action 2');
+              }}
+            >
+              <Text>Re call</Text>
+            </Pressable>
+          </View>
+        </ModalContent>
+      </Modal>
     </View>
   );
 }
@@ -106,5 +193,16 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     padding: 10,
     color: 'white',
+  },
+  pressable: {
+    flex: 1,
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    padding: 22,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 4,
+    borderColor: 'rgba(0, 0, 0, 0.1)',
   },
 });
