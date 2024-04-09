@@ -13,7 +13,24 @@ import { getListFriend } from '@/selectors/FriendSelector';
 import { getListMessenges } from '@/selectors/MessengesSelector';
 import Pressable from 'react-native/Libraries/Components/Pressable/Pressable';
 import { Modal, ModalContent, SlideAnimation } from 'react-native-modals';
-import { color } from 'react-native-reanimated';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { HeartIcon } from '@/assets/svg/Icon';
+
+export function DoubleTap({ onDoubleTap, children }) {
+  const [lastPress, setLastPress] = useState(0);
+
+  const handlePressIn = () => {
+    const currentTime = new Date().getTime();
+    const delta = currentTime - lastPress;
+    if (delta < 300) {
+      // Double tap threshold: 300 milliseconds
+      onDoubleTap();
+    }
+    setLastPress(currentTime);
+  };
+
+  return <Pressable onPressIn={handlePressIn}>{children}</Pressable>;
+}
 
 export default function Chat() {
   const route = useRoute(); // Sử dụng hook useRoute để truy cập route.params
@@ -30,6 +47,7 @@ export default function Chat() {
   const [selectedMessageIndex, setSelectedMessageIndex] = useState(null);
   const [isModalVisible, setModalVisible] = useState(false);
   const [scaleAnimation] = useState(new Animated.Value(1));
+  const conversationId = messageData.id;
 
   useEffect(() => {
     // Cập nhật messageData khi listMess thay đổi
@@ -50,7 +68,6 @@ export default function Chat() {
     setModalVisible(true);
   };
   const handleCloseModal = () => {
-    console.log(' vai lion');
     Animated.timing(scaleAnimation, {
       toValue: 1,
       duration: 200,
@@ -60,8 +77,34 @@ export default function Chat() {
     // setModalVisible(false);
   };
 
+  const reactMessageFetch = async (messageId) => {
+    const token = await AsyncStorage.getItem('token');
+    reactType = 'Heart';
+
+    console.log(conversationId, messageId, 'Heart');
+
+    fetch('http://103.71.96.70:8080/message/react-message', {
+      method: 'POST',
+      body: JSON.stringify({
+        conversationId: conversationId,
+        messageId: messageId,
+        reactType: 'HEART',
+      }),
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok', response);
+        }
+        console.log('File(s) sent successfully!');
+      })
+      .catch((error) => console.error('Error:', error));
+  };
+
   const sendText = () => {
-    console.log('loi');
     dispatch(
       sendMessageAction({ receiverId: '721b8305-5b09-466d-80b9-79eb4e98121f', content: message })
     );
@@ -78,21 +121,31 @@ export default function Chat() {
       <ScrollView>
         <View style={[styles.container, { flexDirection: 'column-reverse' }]}>
           {messageData?.messages?.map((message, index) => (
-            <Pressable
-              key={index}
-              onLongPress={() => handleLongPress(index)} // Pass index to handleLongPress function
-            >
+            <Pressable key={index} onLongPress={() => handleLongPress(index)}>
               <Animated.View
                 style={[
                   styles.messageContainer,
                   selectedMessageIndex === index && { transform: [{ scale: scaleAnimation }] },
                 ]}
               >
-                <Message
-                  isOwn={user.userId === message.sender.userId}
-                  message={message.content}
-                  srcAvatar={srcAvatar}
-                />
+                {message.messageType === 'FILE' ? (
+                  <Image
+                    style={{ height: 300, width: 300 }}
+                    source={{
+                      uri: message.files.viewUri,
+                    }}
+                  />
+                ) : (
+                  <DoubleTap onDoubleTap={() => reactMessageFetch(message.id)}>
+                    <Message
+                      isOwn={user.userId === message.sender.userId}
+                      message={message.content}
+                        srcAvatar={srcAvatar}
+                        reactions = {message.reactions}
+                    />
+                  
+                  </DoubleTap>
+                )}
               </Animated.View>
             </Pressable>
           ))}

@@ -54,7 +54,6 @@ export function Home() {
         console.log('Connected: ' + frame);
         // Đăng ký nhận tin nhắn từ server
         stompClient.subscribe(`/user/${user.userId}/queue/messages`, (message) => {
-          console.log(message);
           //   // Xử lý tin nhắn nhận được tại đây
           //   // Ví dụ: setMessageData(prevData => [...prevData, message.body]);
 

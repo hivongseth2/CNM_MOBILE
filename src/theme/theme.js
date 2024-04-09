@@ -18,7 +18,7 @@ export const theme = {
       green: '#184D47',
       blueLight: '#3B6978',
       gray: '#B2B2B2',
-      white:"#fFFFF",
+      white: '#FFFF',
     },
   },
   dark: {
@@ -38,8 +38,7 @@ export const theme = {
       green: '#184D47',
       blueLight: '#3B6978',
       gray: '#B2B2B2',
-            white:"#fFFFF",
-
+      white: '#FFFF',
     },
   },
 };
