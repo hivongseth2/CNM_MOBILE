@@ -32,6 +32,7 @@ export default function Chat() {
   const [scaleAnimation] = useState(new Animated.Value(1));
 
   useEffect(() => {
+    console.log('messageData', messageData);
     // Cập nhật messageData khi listMess thay đổi
     const foundMessage = listMess.find((message) => message.id === messageData.id);
     if (foundMessage) {
@@ -90,7 +91,7 @@ export default function Chat() {
               >
                 <Message
                   isOwn={user.userId === message.sender.userId}
-                  message={message.content}
+                  message={message}
                   srcAvatar={srcAvatar}
                 />
               </Animated.View>

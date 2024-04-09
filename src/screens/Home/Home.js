@@ -22,6 +22,7 @@ import { getAllMessenger } from '@/actions/MessengerAction';
 import SockJS from 'sockjs-client';
 import Stomp from 'stompjs';
 import { over as StompOver } from 'stompjs';
+import { getConversationName } from '@/utils/conversationUtil';
 export function Home() {
   const navigation = useNavigation();
   const { colors } = useTheme();
@@ -35,9 +36,9 @@ export function Home() {
   const listFriend = useSelector(getListFriend);
   const listMess = useSelector(getListMessenges);
 
-  console.log('getListMessenges', listMess.message);
+  console.log('getListMessenges', listMess?.message);
 
-  useEffect(() => {}, [listMess.message]);
+  useEffect(() => {}, [listMess?.message]);
 
   useEffect(() => {
     dispatch(getAllFriend());
@@ -123,17 +124,21 @@ export function Home() {
         </ScrollView>
         {listMess &&
           listMess.length > 0 &&
-          listMess?.map((user) => (
-            <UserChat
-              key={user.id}
-              id={user.id}
-              name={user.participants[0].fullName}
-              srcAvatar={user.participants[0].avatarUri}
-              chatContent={user.lastMessage.content}
-              time={user.lastMessage.timestamp}
-              content={user}
-            />
-          ))}
+          listMess?.map((conversation) => {
+            let conversationName = getConversationName(conversation, user);
+
+            return (
+              <UserChat
+                key={conversation.id}
+                id={conversation.id}
+                name={conversationName}
+                srcAvatar={conversation.participants[0].avatarUri}
+                chatContent={conversation.lastMessage.content}
+                time={conversation.lastMessage.timestamp}
+                content={conversation}
+              />
+            );
+          })}
       </ScrollView>
 
       <ModalOption
@@ -146,4 +151,22 @@ export function Home() {
       />
     </View>
   );
+}
+
+{
+  /* const getConversationName = (conversation) => {
+  let conversationName;
+
+  if (conversation.conversationType === 'PRIVATE') {
+    conversationName =
+      conversation.participants[0].userId == user.userId
+        ? conversation.participants[1].fullName
+        : conversation.participants[0].fullName;
+  }else if (conversation.conversationType === "GROUP"){
+      // conversation = conversation.name || 
+      // for(let i=0; i<conversation.participants.length)
+  }
+
+  return conversationName
+} */
 }
