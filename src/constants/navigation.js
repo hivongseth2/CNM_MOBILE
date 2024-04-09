@@ -11,4 +11,5 @@ export const NAVIGATION = {
 export const TABS = {
   home: 'Home',
   profile: 'Profile',
+  friends: 'Friends',
 };

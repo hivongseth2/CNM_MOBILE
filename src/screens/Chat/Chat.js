@@ -1,4 +1,15 @@
-import { Image, ScrollView, StyleSheet, Text, View, Animated, Easing } from 'react-native';
+import {
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+  Animated,
+  Easing,
+  Pressable,
+  TouchableOpacity,
+  Button,
+} from 'react-native';
 import { strings } from '@/localization';
 
 import React, { useEffect, useState, useRef } from 'react';
@@ -11,12 +22,11 @@ import { useDispatch, useSelector } from 'react-redux';
 import { sendMessageAction } from '@/actions/MessengerAction';
 import { getListFriend } from '@/selectors/FriendSelector';
 import { getListMessenges } from '@/selectors/MessengesSelector';
-import Pressable from 'react-native/Libraries/Components/Pressable/Pressable';
-import { Modal, ModalContent, SlideAnimation } from 'react-native-modals';
+import { Modal, ModalButton, ModalContent, ModalFooter, SlideAnimation } from 'react-native-modals';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { HeartIcon } from '@/assets/svg/Icon';
-
-export function DoubleTap({ onDoubleTap, children }) {
+import CustomModal from '@/components/Modal';
+export function DoubleTap({ onDoubleTap, onLongPress, children }) {
   const [lastPress, setLastPress] = useState(0);
 
   const handlePressIn = () => {
@@ -29,7 +39,11 @@ export function DoubleTap({ onDoubleTap, children }) {
     setLastPress(currentTime);
   };
 
-  return <Pressable onPressIn={handlePressIn}>{children}</Pressable>;
+  return (
+    <Pressable onPressIn={handlePressIn} onLongPress={onLongPress}>
+      {children}
+    </Pressable>
+  );
 }
 
 export default function Chat() {
@@ -39,7 +53,7 @@ export default function Chat() {
   const user = useSelector(getUser);
   const [message, setMessage] = useState('');
   const srcAvatar = route.params.srcAvatar;
-  const [sockets, setSockets] = useState({});
+  const [editId, setEditId] = useState(null);
   const [messageData, setMessageData] = useState(route.params.content);
   const dispatch = useDispatch();
   const listMess = useSelector(getListMessenges);
@@ -50,15 +64,77 @@ export default function Chat() {
   const conversationId = messageData.id;
 
   useEffect(() => {
-    // Cập nhật messageData khi listMess thay đổi
     const foundMessage = listMess.find((message) => message.id === messageData.id);
     if (foundMessage) {
       setMessageData(foundMessage);
     }
   }, [listMess, messageData.id]);
 
-  const handleLongPress = (index) => {
-    setSelectedMessageIndex(index); // Lưu index của item được chọn
+  const scrollViewRef = useRef(null);
+
+  const ReCallMessage = async () => {
+    const token = await AsyncStorage.getItem('token');
+    fetch('http://103.71.96.70:8080/message/recall-message', {
+      method: 'POST',
+      body: JSON.stringify({
+        conversationId: conversationId,
+        messageId: editId,
+      }),
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok', response);
+        }
+        handleCloseModal();
+        setEditId(null);
+      })
+      .catch((error) => console.error('Error:', error));
+  };
+
+  const handleScroll = async (event) => {
+    // Lấy vị trí hiện tại của scroll
+    const { contentOffset } = event.nativeEvent;
+    const currentScrollY = contentOffset.y;
+
+    // Kiểm tra nếu scroll tới đầu trang
+    if (currentScrollY === 0) {
+      const token = await AsyncStorage.getItem('token');
+
+      // fetch('http://103.71.96.70:8080/message/get-more', {
+      //   method: 'GET',
+      //   body: JSON.stringify({
+      //     conversationId: conversationId,
+      //     messageId: messageData.messages[messageData.messages.length - 1],
+      //   }),
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //     Authorization: `Bearer ${token}`,
+      //   },
+      // })
+      //   .then((response) => {
+      //     if (!response.ok) {
+      //       throw new Error('Network response was not ok', response);
+      //     }
+      //     console.log('get more successs', response);
+      //   })
+      //   .catch((error) => console.error('Error:', error));
+
+      console.log(
+        '======================',
+        messageData.messages[messageData.messages.length - 2],
+        conversationId
+      );
+    }
+  };
+
+  const handleLongPress = (index, editId) => {
+    setSelectedMessageIndex(index);
+    setEditId(editId);
+
     Animated.timing(scaleAnimation, {
       toValue: 1.1,
       duration: 100,
@@ -74,15 +150,11 @@ export default function Chat() {
       easing: Easing.sin,
       useNativeDriver: true,
     }).start();
-    // setModalVisible(false);
+    setModalVisible(false);
   };
 
   const reactMessageFetch = async (messageId) => {
     const token = await AsyncStorage.getItem('token');
-    reactType = 'Heart';
-
-    console.log(conversationId, messageId, 'Heart');
-
     fetch('http://103.71.96.70:8080/message/react-message', {
       method: 'POST',
       body: JSON.stringify({
@@ -104,63 +176,17 @@ export default function Chat() {
       .catch((error) => console.error('Error:', error));
   };
 
-  const sendText = () => {
-    dispatch(
-      sendMessageAction({ receiverId: '721b8305-5b09-466d-80b9-79eb4e98121f', content: message })
-    );
-    setMessage('');
-  };
-  const sendMessage = (message, userId) => {
-    const socket = sockets[userId];
-    if (socket && socket.readyState === WebSocket.OPEN) {
-      socket.send(JSON.stringify(message));
-    }
-  };
   return (
     <View style={styles.container}>
-      <ScrollView>
-        <View style={[styles.container, { flexDirection: 'column-reverse' }]}>
-          {messageData?.messages?.map((message, index) => (
-            <Pressable key={index} onLongPress={() => handleLongPress(index)}>
-              <Animated.View
-                style={[
-                  styles.messageContainer,
-                  selectedMessageIndex === index && { transform: [{ scale: scaleAnimation }] },
-                ]}
-              >
-                {message.messageType === 'FILE' ? (
-                  <Image
-                    style={{ height: 300, width: 300 }}
-                    source={{
-                      uri: message.files.viewUri,
-                    }}
-                  />
-                ) : (
-                  <DoubleTap onDoubleTap={() => reactMessageFetch(message.id)}>
-                    <Message
-                      isOwn={user.userId === message.sender.userId}
-                      message={message.content}
-                        srcAvatar={srcAvatar}
-                        reactions = {message.reactions}
-                    />
-                  
-                  </DoubleTap>
-                )}
-              </Animated.View>
-            </Pressable>
-          ))}
-        </View>
-      </ScrollView>
-
-      <TextInputComponent />
-
       <Modal
         width={240}
-        height={200}
-        modalStyle={{ backgroundColor: 'transparent' }}
-        animationDuration={50}
-        swipeDirection={['up', 'down']} // can be string or an array
-        swipeThreshold={50} // default 100
+        height={300}
+        modalStyle={{ backgroundColor: 'transparent', flex: 1, marginTop: 300 }}
+        animationDuration={100}
+        swipeDirection={['up', 'down']}
+        swipeThreshold={0} // default 100
+        useNativeDriver={true}
+        
         onSwipeOut={(event) => {
           setModalVisible(false);
         }}
@@ -180,51 +206,94 @@ export default function Chat() {
         onSwipingOut={() => {
           handleCloseModal();
         }}
+        footer={
+          <ModalFooter>
+            <ModalButton
+              text="CANCEL"
+              onPress={() => {
+                handleCloseModal();
+                setEditId(null);
+              }}
+            />
+            <ModalButton text="OK" onPress={() => {}} />
+          </ModalFooter>
+        }
       >
         <ModalContent>
-          <View
+          <Pressable
             style={{
-              // flex: 1,
-              justifyContent: 'center',
+              borderRadius: 4,
               alignItems: 'center',
-              height: 200,
+              justifyContent: 'center',
+              width: 200,
+              height: 50,
+              backgroundColor: colors.red,
+            }}
+            onPress={() => {
+              console.log('action1');
             }}
           >
-            <Pressable
-              style={{
-                borderRadius: 4,
-                alignItems: 'center',
-                justifyContent: 'center',
-                width: 200,
-                height: 50,
-                backgroundColor: colors.red,
-              }}
-              onPress={() => {
-                console.log('action1');
-              }}
-            >
-              <Text>Delete</Text>
-            </Pressable>
+            <Text>Delete</Text>
+          </Pressable>
 
-            <Pressable
-              style={{
-                borderRadius: 4,
-                alignItems: 'center',
-                justifyContent: 'center',
-                width: 200,
-                height: 50,
-                backgroundColor: colors.blue,
-                marginTop: 20,
-              }}
-              onPress={() => {
-                console.log('action 2');
-              }}
-            >
-              <Text>Re call</Text>
-            </Pressable>
-          </View>
+          <Button
+            hitSlop={{ top: 40, bottom: 40, left: 40, right: 40 }}
+            width="400"
+            height={100}
+            useNativeDriver={true}
+            style={{
+              borderRadius: 4,
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: 200,
+              height: 100,
+              zIndex: 300,
+              backgroundColor: colors.blue,
+              marginTop: 20,
+            }}
+            title="Re call"
+            onPress={ReCallMessage}
+          ></Button>
         </ModalContent>
       </Modal>
+      <ScrollView ref={scrollViewRef} onScroll={handleScroll}>
+        <View style={[styles.container, { flexDirection: 'column-reverse' }]}>
+          {messageData?.messages?.map((message, index) => (
+            <Animated.View
+              style={[
+                styles.messageContainer,
+                selectedMessageIndex === index && { transform: [{ scale: scaleAnimation }] },
+              ]}
+            >
+              {message.messageType === 'FILE' ? (
+                <Image
+                  style={{ height: 300, width: 300 }}
+                  source={{
+                    // uri: message.files.viewUri,
+                    uri: 'https://st.quantrimang.com/photos/image/2018/05/25/workplace.jpg',
+                  }}
+                />
+              ) : (
+                <DoubleTap
+                  onDoubleTap={() => reactMessageFetch(message.id)}
+                  onLongPress={() => {
+                    handleLongPress(index, message.id);
+                  }}
+                >
+                  <Message
+                    isOwn={user.userId === message.sender.userId}
+                    message={message.content}
+                    srcAvatar={srcAvatar}
+                    reactions={message.reactions}
+                  />
+                </DoubleTap>
+              )}
+            </Animated.View>
+          ))}
+        </View>
+      </ScrollView>
+
+      <TextInputComponent />
     </View>
   );
 }

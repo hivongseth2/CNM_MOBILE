@@ -18,11 +18,12 @@ export const routes = {
     removeFriend: `${url}/friend/remove-friend/`,
     searchByEmail: `${url}/user/friend/find/`,
     getAllFriend: `${url}/user/friend`,
+    friendRequest: `${url}/user/friend/request`,
   },
   message: {
     getAllMessenger: `${url}/message`,
     sendMessage: `${url}/message/send-text`,
-    sendFile:`${url}/message/send-file`
+    sendFile: `${url}/message/send-file`,
   },
 
   // register: {

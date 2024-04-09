@@ -19,4 +19,11 @@ export class FriendController {
       url: `${routes.friend.getAllFriend}`,
     });
   }
+
+  getAllFriendRequest() {
+    return this.networkService.request({
+      method: 'GET',
+      url: `${routes.friend.friendRequest}`,
+    });
+  }
 }

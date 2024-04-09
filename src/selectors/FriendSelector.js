@@ -4,3 +4,6 @@ export const getFriend = (state) => {
 export const getListFriend = (state) => {
   return Object.keys(state.listFriend).length > 0 ? state.listFriend : null;
 };
+export const getListFriendRequest = (state) => {
+  return Object.keys(state.listFriendRequest).length > 0 ? state.listFriendRequest : null;
+};

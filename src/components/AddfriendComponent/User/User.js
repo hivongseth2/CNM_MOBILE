@@ -1,19 +1,27 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Text, View, Image, Pressable } from 'react-native';
 import { useNavigation, useTheme } from '@react-navigation/native';
 import { typography } from '@/theme';
 import styles from './UserStyle';
 import formatTimeDifference from '@/utils/time';
 import { NAVIGATION } from '@/constants';
+import ViewProfileModal from '@/components/ViewProfile/ViewProfileModal';
 
 export default function User({ user }) {
-  console.log('user prop', user.user);
+  console.log('line 11 ', user);
+
+  const [selectedUser, setSelectedUser] = useState(user);
+
   const friend = user?.user;
   const navigation = useNavigation();
   const { colors } = useTheme();
+  const [showModal, setShowModal] = useState(false);
   return (
     <Pressable
       style={styles.container}
+      onPress={() => {
+        setShowModal(true);
+      }}
       // onPress={() => {
       //   navigation.navigate(NAVIGATION.chat, {
       //     srcAvatar: user.avatarUri,
@@ -38,6 +46,12 @@ export default function User({ user }) {
           </Text>
         </View>
       </View>
+
+      <ViewProfileModal
+        visible={showModal}
+        setVisible={setShowModal}
+        user={selectedUser}
+      ></ViewProfileModal>
 
       {/* <Image style={styles.setting} source={require('../../assets/settingBlue.png')}></Image> */}
     </Pressable>

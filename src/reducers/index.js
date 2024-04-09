@@ -5,6 +5,7 @@ import { userReducer } from '@/reducers/UserReducer';
 import { friendReducer } from './FriendReducer';
 import { listFriendReducer } from './ListFriendReducer';
 import { listMessReducer } from './MessengerReducer';
+import { friendRequestReducer } from './FriendRequestReducer';
 
 export const rootReducer = combineReducers({
   error: errorReducer,
@@ -13,4 +14,5 @@ export const rootReducer = combineReducers({
   friend: friendReducer,
   listFriend: listFriendReducer,
   listMessenger: listMessReducer,
+  listFriendRequest: friendRequestReducer,
 });
