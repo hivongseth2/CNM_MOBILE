@@ -85,6 +85,25 @@ export const sendMessageAction =
       return data;
     }
   };
+
+export const sendFileAction =
+  ( formData ) =>
+  async (dispatch, _, { networkService }) => {
+    try {
+      dispatch(sendMessageRequest());
+      const messengerController = new MessengerController(networkService);
+      await messengerController.sendFile( formData ).then((res) => {
+        console.log('resssssssssssss', res);
+        if (res.status === 200) {
+          dispatch(sendMessageSuccess(res.data));
+        }
+      });
+    } catch (e) {
+      console.log('errrr', e);
+      dispatch(sendMessageError(e ?? strings.sendMessage.error));
+      return data;
+    }
+  };
 export const deleteStore = () => {
   return async (dispatch, _, { networkService }) => {
     dispatch(clear());

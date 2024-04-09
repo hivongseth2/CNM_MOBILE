@@ -14,11 +14,18 @@ export class MessengerController {
   }
 
   sendMessage({ receiverId, content }) {
-    console.log('rot', receiverId, content);
     return this.networkService.request({
       method: 'POST',
       url: `${routes.message.sendMessage}`,
       data: { receiverId, content },
+    });
+  }
+
+  sendFile(formData) {
+    return this.networkService.request({
+      method: 'POST',
+      url: `${routes.message.sendFile}`,
+      formData,
     });
   }
 }

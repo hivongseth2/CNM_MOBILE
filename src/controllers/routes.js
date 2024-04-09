@@ -22,6 +22,7 @@ export const routes = {
   message: {
     getAllMessenger: `${url}/message`,
     sendMessage: `${url}/message/send-text`,
+    sendFile:`${url}/message/send-file`
   },
 
   // register: {
